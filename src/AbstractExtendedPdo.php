@@ -200,7 +200,7 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param string $statement The SQL statement to prepare and execute.
      *
-     * @return int The number of affected rows.
+     * @return int|false The number of affected rows or false.
      *
      * @see http://php.net/manual/en/pdo.exec.php
      *
@@ -225,6 +225,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return int
      *
+     * @throws Exception\CannotBindValue
+     *
      */
     public function fetchAffected(string $statement, array $values = []): int
     {
@@ -241,7 +243,9 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param array $values Values to bind to the query.
      *
-     * @return array
+     * @return array Starting PHP8 only array but array|false before
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchAll(string $statement, array $values = []): array
@@ -265,6 +269,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return array
      *
+     * @throws Exception\CannotBindValue
+     *
      */
     public function fetchAssoc(string $statement, array $values = []): array
     {
@@ -284,7 +290,9 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param array $values Values to bind to the query.
      *
-     * @return array
+     * @return array Starting PHP8 only array but array|false before
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchCol(string $statement, array $values = []): array
@@ -305,7 +313,9 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @param int $style a fetch style defaults to PDO::FETCH_COLUMN for single
      * values, use PDO::FETCH_NAMED when fetching a multiple columns
      *
-     * @return array
+     * @return array Starting PHP8 only array but array|false before
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchGroup(
@@ -337,7 +347,9 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param array $args Arguments to pass to the object constructor.
      *
-     * @return object
+     * @return object|false
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchObject(
@@ -377,7 +389,9 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param array $args Arguments to pass to each object constructor.
      *
-     * @return array
+     * @return array Starting PHP8 only array but array|false before
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchObjects(
@@ -405,6 +419,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return array|false
      *
+     * @throws Exception\CannotBindValue
+     *
      */
     public function fetchOne(string $statement, array $values = [])
     {
@@ -421,7 +437,9 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param array $values Values to bind to the query.
      *
-     * @return array
+     * @return array Starting PHP8 only array but array|false before
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchPairs(string $statement, array $values = []): array
@@ -439,6 +457,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @param array $values Values to bind to the query.
      *
      * @return mixed
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function fetchValue(string $statement, array $values = [])
@@ -546,7 +566,7 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return PDOStatement
      *
-     * @throws \Aura\Sql\Exception\CannotBindValue
+     * @throws Exception\CannotBindValue
      * @see quote()
      *
      */
@@ -569,16 +589,16 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @param array|null $options Set these attributes on the returned
      * PDOStatement.
      *
-     * @return PDOStatement
+     * @return PDOStatement|false
      *
      * @see http://php.net/manual/en/pdo.prepare.php
      *
      */
-    public function prepare($query, $options = null): PDOStatement
+    #[\ReturnTypeWillChange]
+    public function prepare($query, $options = null)
     {
         $this->connect();
-        $sth = $this->pdo->prepare($query, $options ?? []);
-        return $sth;
+        return $this->pdo->prepare($query, $options ?? []);
     }
 
     /**
@@ -600,7 +620,7 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return PDOStatement
      *
-     * @throws \Aura\Sql\Exception\CannotBindValue
+     * @throws Exception\CannotBindValue
      * @see http://php.net/manual/en/pdo.prepare.php
      *
      */
@@ -638,12 +658,13 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param mixed ...$fetch Optional fetch-related parameters.
      *
-     * @return PDOStatement
+     * @return PDOStatement|false
      *
      * @see http://php.net/manual/en/pdo.query.php
      *
      */
-    public function query(string $query, ...$fetch): PDOStatement
+    #[\ReturnTypeWillChange]
+    public function query(string $query, ...$fetch)
     {
         $this->connect();
         $this->profiler->start(__FUNCTION__);
@@ -663,12 +684,13 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @param int $type A data type hint for the database driver.
      *
-     * @return string The quoted value.
+     * @return string|false The quoted value or false.
      *
      * @see http://php.net/manual/en/pdo.quote.php
      *
      */
-    public function quote($value, $type = self::PARAM_STR): string
+    #[\ReturnTypeWillChange]
+    public function quote($value, int $type = self::PARAM_STR)
     {
         $this->connect();
 
@@ -783,6 +805,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return \Generator
      *
+     * @throws Exception\CannotBindValue
+     *
      */
     public function yieldAll(string $statement, array $values = []): Generator
     {
@@ -801,6 +825,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @param array $values Values to bind to the query.
      *
      * @return \Generator
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function yieldAssoc(string $statement, array $values = []): Generator
@@ -821,6 +847,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @param array $values Values to bind to the query.
      *
      * @return \Generator
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function yieldCol(string $statement, array $values = []): Generator
@@ -852,6 +880,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      *
      * @return \Generator
      *
+     * @throws Exception\CannotBindValue
+     *
      */
     public function yieldObjects(
         string $statement,
@@ -882,6 +912,8 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @param array $values Values to bind to the query.
      *
      * @return \Generator
+     *
+     * @throws Exception\CannotBindValue
      *
      */
     public function yieldPairs(string $statement, array $values = []): Generator
@@ -979,7 +1011,6 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
                 $this->quoteNameSuffix = '"';
                 $this->quoteNameEscapeFind = '"';
                 $this->quoteNameEscapeRepl = '""';
-                return;
         }
     }
 
@@ -988,7 +1019,7 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * Retrieve a database connection attribute
      *
      * @param int $attribute
-     * @return bool|int|string|array|null
+     * @return mixed
      */
     #[\ReturnTypeWillChange]
     public function getAttribute($attribute)
@@ -1006,7 +1037,7 @@ abstract class AbstractExtendedPdo extends PDO implements ExtendedPdoInterface
      * @return bool
      */
     #[\ReturnTypeWillChange]
-    public function setAttribute($attribute, $value)
+    public function setAttribute($attribute, $value): bool
     {
         $this->connect();
         return $this->pdo->setAttribute($attribute, $value);
