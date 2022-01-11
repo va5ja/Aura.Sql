@@ -78,10 +78,10 @@ interface PdoInterface
      *
      * @param int $attribute The PDO::ATTR_* constant.
      *
-     * @return bool|int|string|array|null The value for the attribute.
+     * @return mixed The value for the attribute.
      *
      */
-    public function getAttribute(int $attribute): bool|int|string|array|null;
+    public function getAttribute(int $attribute): mixed;
 
     /**
      *
@@ -144,7 +144,7 @@ interface PdoInterface
      *
      * Quotes a value for use in an SQL statement.
      *
-     * @param string|int|array|float|null $value The value to quote.
+     * @param string|string[]|null $value The value to quote.
      *
      * @param int $type A data type hint for the database driver.
      *
@@ -153,7 +153,7 @@ interface PdoInterface
      * @see http://php.net/manual/en/pdo.quote.php
      *
      */
-    public function quote(string|int|array|float|null $value, int $type = PDO::PARAM_STR): string|false;
+    public function quote(string|array|null $value, int $type = PDO::PARAM_STR): string|false;
 
     /**
      *

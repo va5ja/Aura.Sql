@@ -221,6 +221,22 @@ class ExtendedPdoTest extends TestCase
         $this->assertSame($expect, $actual);
     }
 
+    public function testFetchAffectedWithInvalidQuery()
+    {
+        $this->expectException(\PDOException::class);
+
+        $stm = "DELETE FROMM pdotest";
+        $this->pdo->fetchAffected($stm);
+    }
+
+    public function testFetchAffectedWithInvalidBindValues()
+    {
+        $this->expectException(Exception\CannotBindValue::class);
+
+        $stm = "DELETE FROM pdotest WHERE id = :id";
+        $this->pdo->fetchAffected($stm, ['id' => (object)[]]);
+    }
+
     public function testFetchAll()
     {
         $stm = "SELECT * FROM pdotest";
